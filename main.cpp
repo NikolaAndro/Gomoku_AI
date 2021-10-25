@@ -54,7 +54,7 @@ void display(int board[15][15]){
  *              spot for 8 directions. 
  */
  int checkBoardStatus(int board[15][15]){
-     ///Get all the positions where there is a pebble
+     ///Get all the positions where there is a pebble.
      vector<array<int,2>> current_positions = {};
      for(int i = 0; i < 15; i++){
          for(int j=0; j < 15; j++){
