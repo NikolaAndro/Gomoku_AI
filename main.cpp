@@ -74,7 +74,7 @@ void display(int board[15][15]){
         int count = 0; //count how many consecutive pebbles there are in this direction
         bool winner = false; //keep track if there is a winning state 
         //cout<<"Checking direction LEFT"<<endl;
-        while(temp_y>=0){
+        while(temp_y>=0  && board[x][temp_y] == board[x][y] ){
             //cout<<"checking position "<< x<<" "<< temp_y <<endl;
 
             //if the next spot on the board is same as the original one, increment the count
@@ -101,7 +101,7 @@ void display(int board[15][15]){
         count = 0; //count how many consecutive pebbles there are in this direction
         winner = false; //keep track if there is a winning state 
         //cout<<"Checking direction RIGHT"<<endl;
-        while(temp_y<=14){
+        while(temp_y<=14  && board[x][temp_y] == board[x][y] ){
             //cout<<"checking position "<< x<<" "<< temp_y <<endl;
 
             //if the next spot on the board is same as the original one, increment the count
@@ -114,6 +114,184 @@ void display(int board[15][15]){
                 break;
             }
             //move one spot left
+            temp_y++;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
+        //Checking direction UP
+        int temp_x = x; //from this position we are looking for 5 consecutive same values
+        count = 0; //count how many consecutive pebbles there are in this direction
+        winner = false; //keep track if there is a winning state 
+        cout<<"Checking direction UP"<<endl;
+        while(temp_x>=0 && board[temp_x][y] == board[x][y] ){
+            //cout<<"checking position "<< temp_x<<" "<< y << " where x is "<< board[temp_x][y] <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[temp_x][y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                cout<<"coonut is 5"<<endl;
+                winner = true;
+                break;
+            }
+            
+            //move one spot left
+            temp_x--;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
+        //Checking direction DOWN
+        temp_x = x; //from this position we are looking for 5 consecutive same values
+        count = 0; //count how many consecutive pebbles there are in this direction
+        winner = false; //keep track if there is a winning state 
+        cout<<"Checking direction DOWN"<<endl;
+        while(temp_x>=0 && board[temp_x][y] == board[x][y] ){
+            cout<<"checking position "<< temp_x<<" "<< y << " where x is "<< board[temp_x][y] <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[temp_x][y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                cout<<"coonut is 5"<<endl;
+                winner = true;
+                break;
+            }
+            
+            //move one spot left
+            temp_x++;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
+        //Checking direction Diagonal UP - LEFT
+        temp_x = x; //from this position we are looking for 5 consecutive same values
+        temp_y = y;
+        count = 0; //count how many consecutive pebbles there are in this direction
+        winner = false; //keep track if there is a winning state 
+        cout<<"Checking direction DIAGONAL UP - LEFT"<<endl;
+        while(temp_x>=0 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
+            cout<<"checking position "<< temp_x<<" "<< temp_y <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[temp_x][temp_y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                cout<<"coonut is 5"<<endl;
+                winner = true;
+                break;
+            }
+            
+            //move one spot left
+            temp_x--;
+            temp_y--;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
+
+        //Checking direction Diagonal UP - RIGHT
+        temp_x = x; //from this position we are looking for 5 consecutive same values
+        temp_y = y;
+        count = 0; //count how many consecutive pebbles there are in this direction
+        winner = false; //keep track if there is a winning state 
+        cout<<"Checking direction DIAGONAL UP - RIGHT"<<endl;
+        while(temp_x>=0 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
+            cout<<"checking position "<< temp_x<<" "<< temp_y <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[temp_x][temp_y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                cout<<"coonut is 5"<<endl;
+                winner = true;
+                break;
+            }
+            
+            //move one spot left
+            temp_x--;
+            temp_y++;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
+
+        //Checking direction Diagonal DOWN - LEFT
+        temp_x = x; //from this position we are looking for 5 consecutive same values
+        temp_y = y;
+        count = 0; //count how many consecutive pebbles there are in this direction
+        winner = false; //keep track if there is a winning state 
+        cout<<"Checking direction DIAGONAL DOWN - LEFT"<<endl;
+        while(temp_x>=0 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
+            cout<<"checking position "<< temp_x<<" "<< temp_y <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[temp_x][temp_y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                cout<<"coonut is 5"<<endl;
+                winner = true;
+                break;
+            }
+            
+            //move one spot left
+            temp_x++;
+            temp_y--;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
+        //Checking direction Diagonal DOWN - LEFT
+        temp_x = x; //from this position we are looking for 5 consecutive same values
+        temp_y = y;
+        count = 0; //count how many consecutive pebbles there are in this direction
+        winner = false; //keep track if there is a winning state 
+        cout<<"Checking direction DIAGONAL DOWN - RIGHT"<<endl;
+        while(temp_x>=0 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
+            cout<<"checking position "<< temp_x<<" "<< temp_y <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[temp_x][temp_y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                cout<<"coonut is 5"<<endl;
+                winner = true;
+                break;
+            }
+            
+            //move one spot left
+            temp_x++;
             temp_y++;
         }
         //return the value of pebble if the winning state is achieved
@@ -174,11 +352,11 @@ int main(){
     play(gameBoard, 2, position4);
     //play(gameBoard, 2, position5);
 
-    int position6[2] = {9,5};
-    int position7[2] = {9,6};
-    int position8[2] = {9,7};
-    int position9[2] = {9,8};
-    int position10[2] = {9,9};
+    int position6[2] = {13,9};
+    int position7[2] = {12,8};
+    int position8[2] = {11,7};
+    int position9[2] = {10,6};
+    int position10[2] = {9,5};
 
     play(gameBoard, 1, position6);
     play(gameBoard, 1, position7);
