@@ -12,29 +12,33 @@ using namespace std;
  */ 
 
 void display(int board[15][15]){
-    cout<<"     | ";
+    //Printing the indices on the top of the grid
+    cout<<"       ";
     for(int i = 1; i <= 15; i++){
         if(i < 9){
-            cout << i << "  | ";
+            cout << i << "    ";
         }else{
-            cout<<  i << "  |";
+            cout<<  i << "   ";
         }  
     }
-    cout<<endl<<"---------------------------------------------------------------------------------"<<endl;
+    cout<<endl<<endl;
+    ///Printing the grid
+    //cout<<endl<<"---------------------------------------------------------------------------------"<<endl;
+    cout<<endl<<"       |    |    |    |    |    |    |    |    |    |    |    |    |    |    | "<<endl;
     for(int i=0; i < 15; i++){
         if(i+1 < 10){
-            cout<<i+1<<"    | ";
+            cout<<i+1<<"    --";
         }else{
-            cout<<i+1<<"   | ";
+            cout<<i+1<<"   --";
         }
         for(int j = 0; j < 15; j++){
             if(j+1 < 10){
-                cout << board[i][j] << "  | ";
+                cout << board[i][j] << "----";
             }else{
-                cout << board[i][j] << "  | ";
+                cout << board[i][j] << "----";
             }  
         }
-    cout<<endl<<"---------------------------------------------------------------------------------"<<endl;
+    cout<<endl<<"       |    |    |    |    |    |    |    |    |    |    |    |    |    |    | "<<endl;
     }        
 }
 
