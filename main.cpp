@@ -64,6 +64,43 @@ void display(int board[15][15]){
          }
      }
      cout<<"size of the vecotor is "<<current_positions.size()<<endl;
+     for(int i = 0; i < current_positions.size(); i++){
+         
+        int x = current_positions.at(i)[0];
+        int y = current_positions.at(i)[1];
+
+        //Checking direction LEFT
+        int temp_y = y; //from this position we are looking for 5 consecutive same values
+        int count = 0; //count how many consecutive pebbles there are in this direction
+        bool winner = false; //keep track if there is a winning state 
+        while(temp_y>=0){
+            cout<<"checking position "<< x<<" "<< temp_y <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[x][temp_y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                winner = true;
+                break;
+            }
+            //move one spot left
+            temp_y--;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
+
+        //Check Right 
+
+
+
+     }
+
 
     return 1;
  }
@@ -113,6 +150,8 @@ int main(){
     display(gameBoard);
 
     int  x = checkBoardStatus(gameBoard);
+
+    cout<<x<<endl;
     
     return 0;
 }
