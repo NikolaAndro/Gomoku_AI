@@ -42,6 +42,7 @@ void display(int board[15][15]){
     }        
 }
 
+
 /*
  * PRECONDITION: Given a 2D array.
  * POSTCONDITION: Returning if there is a winner in the game. 
