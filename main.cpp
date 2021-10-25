@@ -73,8 +73,9 @@ void display(int board[15][15]){
         int temp_y = y; //from this position we are looking for 5 consecutive same values
         int count = 0; //count how many consecutive pebbles there are in this direction
         bool winner = false; //keep track if there is a winning state 
+        //cout<<"Checking direction LEFT"<<endl;
         while(temp_y>=0){
-            cout<<"checking position "<< x<<" "<< temp_y <<endl;
+            //cout<<"checking position "<< x<<" "<< temp_y <<endl;
 
             //if the next spot on the board is same as the original one, increment the count
             if (board[x][temp_y] == board[x][y]){
@@ -95,14 +96,39 @@ void display(int board[15][15]){
         }
 
 
-        //Check Right 
+        //Checking direction RIGHT
+        temp_y = y; //from this position we are looking for 5 consecutive same values
+        count = 0; //count how many consecutive pebbles there are in this direction
+        winner = false; //keep track if there is a winning state 
+        //cout<<"Checking direction RIGHT"<<endl;
+        while(temp_y<=14){
+            //cout<<"checking position "<< x<<" "<< temp_y <<endl;
+
+            //if the next spot on the board is same as the original one, increment the count
+            if (board[x][temp_y] == board[x][y]){
+                count++;
+            }
+            //check if the winning state is achieved
+            if(count == 5){
+                winner = true;
+                break;
+            }
+            //move one spot left
+            temp_y++;
+        }
+        //return the value of pebble if the winning state is achieved
+        if(winner == true){
+            cout<<"returning "<<board[x][y]<<endl;
+            return board[x][y];
+        }
+
 
 
 
      }
 
 
-    return 1;
+    return 0;
  }
 
 /*
@@ -146,7 +172,20 @@ int main(){
     play(gameBoard, 2, position2);
     play(gameBoard, 2, position3);
     play(gameBoard, 2, position4);
-    play(gameBoard, 2, position5);
+    //play(gameBoard, 2, position5);
+
+    int position6[2] = {9,5};
+    int position7[2] = {9,6};
+    int position8[2] = {9,7};
+    int position9[2] = {9,8};
+    int position10[2] = {9,9};
+
+    play(gameBoard, 1, position6);
+    play(gameBoard, 1, position7);
+    play(gameBoard, 1, position8);
+    play(gameBoard, 1, position9);
+    play(gameBoard, 1, position10);
+
     display(gameBoard);
 
     int  x = checkBoardStatus(gameBoard);
