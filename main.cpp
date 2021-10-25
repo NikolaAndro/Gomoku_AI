@@ -46,8 +46,12 @@ void display(int board[15][15]){
  * PRECONDITION: Given a 2D array.
  * POSTCONDITION: Returning if there is a winner in the game. 
  * DESCRIPTION: Checking columns, diagonals, and rows to see if there is 5 pebbles in the row of the same collor.
- *              First, finding all positions that contain 1 or 2 on the board. 
- *              Second, starting from eaach position in the vector, look for 5 consecutive plays by row, column, or any diagonal. 
+ *              For each position chech all 8 directions. This can be optimized, but will not make much difference in teh runtime. 
+ *              We want to check each position for 8 directions before we move onto another position because the value of our current
+ *              position is already on the cache memory. Otherwise, if we checked for 1 direction everyy point, then for another direction 
+ *              each point, computer would have to spend time accessing the value of the same point in cache 8 times...
+ *              Also, we will first check where are the pebbles on the board. That will take 1 iteration,, which is better then checking each
+ *              spot for 8 directions. 
  */
  int checkBoardStatus(int board[15][15]){
      ///Get all the positions where there is a pebble
@@ -96,7 +100,16 @@ int main(){
                              {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}};
 
     int position[2] = {2,1};
+    int position2[2] = {2,2};
+    int position3[2] = {2,3};
+    int position4[2] = {2,4};
+    int position5[2] = {2,5};
+
     play(gameBoard, 2, position);
+    play(gameBoard, 2, position2);
+    play(gameBoard, 2, position3);
+    play(gameBoard, 2, position4);
+    play(gameBoard, 2, position5);
     display(gameBoard);
 
     int  x = checkBoardStatus(gameBoard);
