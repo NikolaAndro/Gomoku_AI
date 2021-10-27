@@ -1,3 +1,10 @@
+/**
+ *  Programmer: Nikola Andric
+ *  Last Eddited: 10/27/2021
+ *  Email: namdd@umsystem.edu 
+ * 
+ * //
+
 #include<iostream>
 #include<vector>
 #include<array>
