@@ -182,7 +182,7 @@ class board_state_node{
         int total_simulation_reward = 0;
         int total_num_visits = 0;
         board_state_node * parent= NULL;
-        vector<board_state_node> children; //list of children
+        vector<board_state_node*> children; //list of children
 
     public:
         
@@ -200,7 +200,7 @@ class board_state_node{
                     game_state[i][k] = game_board[i][k];
                 }
             }
-
+            //copy(&game_board[0][0],&game_board[0][0]+15*15,&game_state[0][0]);
             parent = predecessor;  
             pebble_color = color;          
         }
@@ -216,22 +216,25 @@ class board_state_node{
             return !children.empty();
         }
 
-        //Create children of the node for every possible move
-        void create_children(board_state_node node){
+        // //Create children of the node for every possible move
+        void create_children(board_state_node* node){
             for(int i = 0; i < 15; i++){
                 for(int k =0; k<15 ; k++){
-                    int new_state[15][15]; 
-                    //perform a deep copy to a new state
-                    copy(&node.game_state[0][0],&node.game_state[0][0]+15*15,&new_state[0][0]);
-                    //place new number to that state based on what player you are
-                    new_state[i][k] = pebble_color;
-                    //create node with that state
-                    board_state_node *parent = &node;
-                    board_state_node child = board_state_node(new_state, parent, pebble_color);
+                    //if the position on the board is empty then add a child
+                    if(game_state[i][k] == 0){
+                        int new_state[15][15]; 
+                        //perform a deep copy to a new state
+                        copy(&node->game_state[0][0],&node->game_state[0][0]+15*15,&new_state[0][0]);
+                        //place new number to that state based on what player you are
+                        new_state[i][k] = pebble_color;
+                        //create node with that state
+                        board_state_node *parent = node; //current node is going to be the parent
+                        board_state_node child = board_state_node(new_state, parent, pebble_color); //create a new node
+                        board_state_node *point_to_child = &child; //create pointer to that node
 
-
-                    //add the node to the children list
-                    node.children.push_back(child);
+                        //add the node to the children list
+                        node->children.push_back(point_to_child);
+                    } 
                 }
             }
         }
@@ -243,6 +246,11 @@ class board_state_node{
             }else{
                 cout<<"This node does not have a parent."<<endl<<endl;
             } 
+            if(children.size()>0){
+                cout<<"This node has "<<children.size()<<" children."<<endl;
+            }else{
+                cout<<"This node has no children."<<endl;
+            }
         }
 
 };
@@ -297,6 +305,7 @@ int main(){
 
     
     board_state_node* root = new board_state_node(gameBoard, NULL, 1);
+    root->create_children(root);
     root->print_node();
    
     int gameBoard2[15][15] = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -316,8 +325,9 @@ int main(){
                              {0,0,0,0,0,0,0,0,0,0,0,0,0,0,1}};
 
     board_state_node*  node1 = new board_state_node(gameBoard2, root,2);
+    node1->create_children(node1);
     node1->print_node();
-    cout<<node1->has_children()<<endl;
+    
 
     
 
