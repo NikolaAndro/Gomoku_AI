@@ -286,6 +286,22 @@ class board_state_node{
             }
         }
 
+        //function that is going to show the result of the simulation
+        int rollout(board_state_node* node){
+            board_state_node temp_node = board_state_node(node->game_state,NULL, node->pebble_color);
+            board_state_node* point_to_temp_node = &temp_node;
+
+            while(checkBoardStatus(point_to_temp_node->game_state) < 1){
+                if(point_to_temp_node->children.size() == 0)
+                    create_children(point_to_temp_node);
+                
+                //pick a random child
+                point_to_temp_node = rollout_policy(point_to_temp_node);
+            }
+            //returning the winning pebble or 0 if there is no winner
+            return checkBoardStatus(point_to_temp_node->game_state);
+        }
+
 
         //function according to which the next move is chosen
         //randomly picking a child
