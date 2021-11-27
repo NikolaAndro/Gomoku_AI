@@ -2,6 +2,9 @@
 #include<vector>
 #include<array>
 #include<algorithm> // for copy() and copy_n()
+#include<time.h>
+#include <cmath>
+#include <bits/stdc++.h>
 
 using namespace std;
 
@@ -51,8 +54,9 @@ void display(int board[15][15]){
  *              We want to check each position for 8 directions before we move onto another position because the value of our current
  *              position is already on the cache memory. Otherwise, if we checked for 1 direction everyy point, then for another direction 
  *              each point, computer would have to spend time accessing the value of the same point in cache 8 times...
- *              Also, we will first check where are the pebbles on the board. That will take 1 iteration,, which is better then checking each
+ *              Also, we will first check where are the pebbles on the board. That will take 1 iteration, which is better then checking each
  *              spot for 8 directions. 
+ *              Returning the value of the winning pebble in case of the win or 0 in case when nobody wins.
  */
  int checkBoardStatus(int board[15][15]){
      ///Get all the positions where there is a pebble.
@@ -96,7 +100,6 @@ void display(int board[15][15]){
             return board[x][y];
         }
 
-
         //Checking direction RIGHT
         temp_y = y; //from this position we are looking for 5 consecutive same values
         count = 0; //count how many consecutive pebbles there are in this direction
@@ -122,13 +125,7 @@ void display(int board[15][15]){
             cout<<"returning "<<board[x][y]<<endl;
             return board[x][y];
         }
-
-
-
-
      }
-
-
     return 0;
  }
 
@@ -179,7 +176,7 @@ class board_state_node{
     private:
         int game_state[15][15]; //State of the board 
         int pebble_color = 0;
-        int total_simulation_reward = 0;
+        double total_simulation_reward = 0;
         int total_num_visits = 0;
         board_state_node * parent= NULL;
         vector<board_state_node*> children; //list of children
@@ -239,6 +236,64 @@ class board_state_node{
             }
         }
 
+        // picking what child we are going to explore based on child's Upper Confidence Bound (UCB)
+
+        board_state_node* traverse(board_state_node* node){
+            
+            while(node->children.size() > 0){
+                double best_UCB = 0;
+                double UCB = 0;
+                board_state_node* best_node = node; 
+
+                //calculate UCB for every child and remember the best one
+                for(int i = 0; i < node->children.size(); i++){
+                    //if child has been visited before, calculate UCB using formula
+                    //otherwise UCB is 1.
+                    board_state_node* child = node->children.at(i);
+                    if(child->total_num_visits != 0)
+                        UCB = child->total_simulation_reward/child->total_num_visits + 2 * sqrt(log(child->total_num_visits)/child->total_num_visits);
+                    else
+                        UCB = 1;
+                    //update if a better UCB is found
+                    if(UCB >= best_UCB){
+                        best_UCB = UCB;
+                        best_node = child;
+                    }
+                }
+                //we are going deeper by setting the node to be the child with the best UCB
+                node = best_node;
+            }
+            //at this point we got the to a leaf node and we need to expand
+            if(!node->has_children()){
+                //if hte node has never been sampled/visited, then simply rollout from there.
+                //otherwise, for each available action, add a new state to the tree
+                if(node->total_num_visits == 0)
+                    return node;
+                else{
+                    //check if the game is ended
+                    if(checkBoardStatus(node->game_state) != 0){
+                        return node;
+                    }
+
+                    //create children for this node
+                    create_children(node);
+
+                    //randomly choose a child for the rollout
+                    node = rollout_policy(node);
+
+                    return node;
+                }
+            }
+        }
+
+
+        //function according to which the next move is chosen
+        //randomly picking a child
+        board_state_node* rollout_policy(board_state_node* node){
+            return node->children.at(rand()%node->children.size());
+        }
+
+        // function that is going to traverse
         void print_node(){
             display(game_state);
             if (has_parent()){
@@ -286,6 +341,8 @@ class MonteCarloTree{
 
 
 int main(){
+    //seeding the random number generator
+    srand(time(0));
 
     int gameBoard[15][15] = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
                              {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
