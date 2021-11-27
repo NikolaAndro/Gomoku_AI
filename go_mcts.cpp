@@ -5,6 +5,7 @@
 #include<time.h>
 #include <cmath>
 #include <bits/stdc++.h>
+#include <typeinfo>
 
 using namespace std;
 
@@ -36,11 +37,7 @@ void display(int board[15][15]){
             cout<<i+1<<"   --";
         }
         for(int j = 0; j < 15; j++){
-            if(j+1 < 10){
-                cout << board[i][j] << "----";
-            }else{
-                cout << board[i][j] << "----";
-            }  
+            cout << board[i][j] << "----"; 
         }
     cout<<endl<<"       |    |    |    |    |    |    |    |    |    |    |    |    |    |    | "<<endl;
     }        
@@ -183,6 +180,12 @@ class board_state_node{
 
     public:
         
+        //getters
+        vector<board_state_node*>& get_children(){return children;}
+        int get_visits(){return total_num_visits;}
+
+        //setters
+        void set_visits(int num_visits){total_num_visits = num_visits;}
 
         //default constructor
         board_state_node(){
@@ -192,15 +195,26 @@ class board_state_node{
         //constructor
         board_state_node(int game_board[15][15], board_state_node * predecessor, int color){
             //Deep copy the state
-            for(int i = 0; i < 15; i++){
-                for(int k = 0; k < 15; k++){
-                    game_state[i][k] = game_board[i][k];
-                }
-            }
-            //copy(&game_board[0][0],&game_board[0][0]+15*15,&game_state[0][0]);
+            // for(int i = 0; i < 15; i++){
+            //     for(int k = 0; k < 15; k++){
+            //         game_state[i][k] = game_board[i][k];
+            //     }
+            // }
+            copy(&game_board[0][0],&game_board[0][0]+15*15,&game_state[0][0]);
             parent = predecessor;  
-            pebble_color = color;          
+            pebble_color = color; 
+            total_simulation_reward = 0;
+            total_num_visits = 0;         
         }
+
+
+        //destructor;
+        ~board_state_node(){
+            for(vector<board_state_node*>::iterator it = children.begin(); it != children.end();it++){
+                delete *it;
+            }
+        }
+
 
 
         //function that checks if a node has parent or not
@@ -222,19 +236,35 @@ class board_state_node{
                         int new_state[15][15]; 
                         //perform a deep copy to a new state
                         copy(&node->game_state[0][0],&node->game_state[0][0]+15*15,&new_state[0][0]);
+                        // cout<<"BEFORE adding hte pebble:"<<endl;
+                        // display(new_state);
                         //place new number to that state based on what player you are
                         new_state[i][k] = pebble_color;
+
+                        // cout<<"AFTER adding hte pebble:"<<endl;
+                        // display(new_state);
                         //create node with that state
                         board_state_node *parent = node; //current node is going to be the parent
-                        board_state_node child = board_state_node(new_state, parent, pebble_color); //create a new node
-                        board_state_node *point_to_child = &child; //create pointer to that node
-
+                        board_state_node *point_to_child = new board_state_node(new_state, parent, pebble_color);
+                        // cout<<"POINTER SHOWS:"<<endl;
+                        // display(point_to_child->game_state);
+                        
                         //add the node to the children list
                         node->children.push_back(point_to_child);
                     } 
                 }
             }
         }
+
+
+
+
+
+
+
+
+
+
 
         // picking what child we are going to explore based on child's Upper Confidence Bound (UCB)
 
@@ -286,10 +316,20 @@ class board_state_node{
             }
         }
 
+
+
+
+
+
+
+
+
+
+
         //function that is going to show the result of the simulation
         int rollout(board_state_node* node){
-            board_state_node temp_node = board_state_node(node->game_state,NULL, node->pebble_color);
-            board_state_node* point_to_temp_node = &temp_node;
+            // board_state_node temp_node = board_state_node(node->game_state,NULL, node->pebble_color);
+            board_state_node* point_to_temp_node = new board_state_node(node->game_state,NULL, node->pebble_color);
 
             while(checkBoardStatus(point_to_temp_node->game_state) < 1){
                 if(point_to_temp_node->children.size() == 0)
@@ -303,6 +343,48 @@ class board_state_node{
         }
 
 
+
+
+
+
+
+
+
+
+
+
+        //returning the child with the most visits
+        board_state_node* best_child(board_state_node* node){
+            int most_visits = 0; //keeping trach of the most visits any child has
+            board_state_node* the_best_child = NULL; // keeping track of the child with the most visits
+         
+
+            // vector<board_state_node*>::iterator it;
+            // for(it = node->children.begin(); it != node->children.end();it++){
+            //     if((*it)->total_num_visits> most_visits ){
+            //         most_visits = (*it)->total_num_visits;
+            //         the_best_child = (*it);
+            //     }
+            // }
+            // iterating over each child to see which one has the most visits
+            for(int i =0; i<node->children.size(); i++){
+                // cout<<i<<endl;
+                if(node->children.at(i)->total_num_visits >= most_visits){
+                    most_visits = node->children.at(i)->total_num_visits;
+                    the_best_child = node->children.at(i);
+                }
+            }
+            
+
+            return the_best_child;
+        }
+
+
+
+
+
+
+
         //function according to which the next move is chosen
         //randomly picking a child
         board_state_node* rollout_policy(board_state_node* node){
@@ -310,7 +392,7 @@ class board_state_node{
         }
 
         // function that is going to traverse
-        void print_node(){
+        void print_node(board_state_node* node){
             display(game_state);
             if (has_parent()){
                 cout<<"This node has a parent."<<endl<<endl;
@@ -319,17 +401,24 @@ class board_state_node{
             } 
             if(children.size()>0){
                 cout<<"This node has "<<children.size()<<" children."<<endl;
+                board_state_node* test = best_child(node);
+                display(test->game_state);
+                cout<<"The best child has " << best_child(node)->get_visits()<<" visits."<<endl;
+                display(best_child(node)->game_state);
             }else{
                 cout<<"This node has no children."<<endl;
             }
+            // cout<<"\n type of game state  is: "<<  typeid(game_state).name(); 
+            // display(node->children.at(244)->game_state);
+            
         }
 
 };
 
 class MonteCarloTree{
     private:
-        board_state_node root;
-        board_state_node current;
+        // board_state_node root;
+        // board_state_nodeprint_node current;
 
 
     public:
@@ -379,7 +468,7 @@ int main(){
     
     board_state_node* root = new board_state_node(gameBoard, NULL, 1);
     root->create_children(root);
-    root->print_node();
+    root->print_node(root);
    
     int gameBoard2[15][15] = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
                              {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -399,7 +488,14 @@ int main(){
 
     board_state_node*  node1 = new board_state_node(gameBoard2, root,2);
     node1->create_children(node1);
-    node1->print_node();
+    board_state_node* tester =  node1->get_children().at(3);
+    
+    
+    
+    tester->print_node(tester);
+    tester->set_visits(6);
+    cout<<"tester has "<<tester->get_visits()<<" visits."<<endl;
+    node1->print_node(node1);
     
 
     
