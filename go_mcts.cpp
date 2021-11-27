@@ -267,9 +267,11 @@ class board_state_node{
 
 
         // picking what child we are going to explore based on child's Upper Confidence Bound (UCB)
-
+        //node that is being passed is the initial state
         board_state_node* traverse(board_state_node* node){
             
+            //if there are children, calculate UCB for each child and choose the child with maximum UCB
+            //we keep doing this until we hit the leaf node that has no children
             while(node->children.size() > 0){
                 double best_UCB = 0;
                 double UCB = 0;
@@ -295,7 +297,7 @@ class board_state_node{
             }
             //at this point we got the to a leaf node and we need to expand
             if(!node->has_children()){
-                //if hte node has never been sampled/visited, then simply rollout from there.
+                //if the node has never been sampled/visited, then simply rollout from there.
                 //otherwise, for each available action, add a new state to the tree
                 if(node->total_num_visits == 0)
                     return node;
@@ -391,6 +393,26 @@ class board_state_node{
             return node->children.at(rand()%node->children.size());
         }
 
+
+
+        //backpropagation function
+        void backpropagate(board_state_node* node, double result){
+            //update the score and the number of visits on each node on this path
+            node->total_simulation_reward += result;
+            node->total_num_visits += 1;
+            //if we hit the root that does not have parent, then we stop.
+            if(!node->parent)
+                return;
+            //backpropagate up the tree
+            backpropagate(node->parent, -result);
+        }
+
+
+
+        //Monte Carlo Tree Search Function
+
+
+
         // function that is going to traverse
         void print_node(board_state_node* node){
             display(game_state);
@@ -417,18 +439,16 @@ class board_state_node{
 
 class MonteCarloTree{
     private:
-        // board_state_node root;
-        // board_state_nodeprint_node current;
+        board_state_node* root;
+        board_state_node* current;
 
 
     public:
-        // MonteCarloTree(int state[15][15]){
-        //     root = board_state_node(state, NULL);
-        // }
+        MonteCarloTree(int state[15][15], int pebble_color){
+            root = new board_state_node(state, NULL, pebble_color);
+            current = root;
+        }
 
-        // board_state_node MonteCarloTreeSearch(int state[15][15]){
-
-        // }
 };
 
 
