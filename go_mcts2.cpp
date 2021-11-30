@@ -352,11 +352,11 @@ class MonteCarloTree{
                     //otherwise UCB is 1.
                     shared_ptr<board_state_node> child = node->get_children().at(i);
                     if(child->get_visits() != 0)
-                        UCB = child->get_reward()/child->get_visits() + 2 * sqrt(log(child->get_visits())/child->get_visits());
+                        UCB = child->get_reward()/child->get_visits() + sqrt(2) * sqrt(log(child->get_visits())/child->get_visits());
                     else
                         UCB = 1;
                     //update if a better UCB is found
-                    if(UCB >= best_UCB){
+                    if(UCB >= best_UCB){//****************************************************************************************************************************zbog ovog = znaka uzima poslednjeg u donjem desnom cosku
                         best_UCB = UCB;
                         best_node = child;
                     }
@@ -389,12 +389,15 @@ class MonteCarloTree{
         //function that is going to show the result of the simulation
         int rollout(shared_ptr<board_state_node> node){
             // board_state_node temp_node = board_state_node(node->game_state,NULL, node->pebble_color);
+            //keep temporary shared pointer
             shared_ptr<board_state_node> point_to_temp_node = make_shared<board_state_node>(board_state_node(node->game_state,NULL));
 
+            //Loop until the game has a winner
             while(checkBoardStatus(point_to_temp_node->game_state) < 1){
+                //if node does not have children, then create children for that node and dig deeper into the tree
                 if(point_to_temp_node->get_children().size() == 0)
                     create_children(point_to_temp_node);                
-                //pick a random child
+                //pick a random child from  the created children to go deeper. 
                 point_to_temp_node = rollout_policy(point_to_temp_node);
             }
             //returning the winning pebble or 0 if there is no winner
@@ -437,9 +440,9 @@ class MonteCarloTree{
 
             while(difftime(time(0), start) < 3){   
             // for(int i = 0; i < 100; i++){
-                // cout<<"yes 1"<<endl;
+                //  Traverse to the bottom of the tree and expand the leaf node if has not been visited
                 shared_ptr<board_state_node> leaf = traverse(current);
-                // cout<<"yes 2"<<endl;
+                // play a simulation from that node.
                 int simulation_result = rollout(leaf);
                 // cout<<"yes 3"<<endl;
                 backpropagate(leaf,simulation_result);
@@ -533,10 +536,12 @@ void human_vs_AI(){
         //check if there is a winner
         //Check if the game is over!
         if(checkBoardStatus(state)== AI_pebble){
-            cout<<"The winner is AI !"<<endl;
+            cout<<"The winner is AI !"<<endl<<endl;
+            display(state);
             break;
         }else if (checkBoardStatus(state) == user_pebble){
-            cout<<"The winner is human !"<<endl;
+            cout<<"The winner is human !"<<endl<<endl;
+            display(state);
             break;
         }
 
@@ -594,10 +599,12 @@ void human_vs_AI(){
 
         //Check if the game is over!
         if(checkBoardStatus(state)== AI_pebble){
-            cout<<"The winner is AI !"<<endl;
+            cout<<"The winner is AI !"<<endl<<endl;
+            display(state);
             break;
         }else if (checkBoardStatus(state) == user_pebble){
-            cout<<"The winner is human !"<<endl;
+            cout<<"The winner is human !"<<endl<<endl;
+            display(state);
             break;
         }
     }
