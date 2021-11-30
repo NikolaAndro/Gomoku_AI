@@ -19,8 +19,8 @@ using namespace std;
 void display(int board[15][15]){
     //Printing the indices on the top of the grid
     cout<<"       ";
-    for(int i = 1; i <= 15; i++){
-        if(i < 9){
+    for(int i = 0; i <= 14; i++){
+        if(i <= 9){
             cout << i << "    ";
         }else{
             cout<<  i << "   ";
@@ -30,13 +30,13 @@ void display(int board[15][15]){
     ///Printing the grid
     //cout<<endl<<"---------------------------------------------------------------------------------"<<endl;
     cout<<endl<<"       |    |    |    |    |    |    |    |    |    |    |    |    |    |    | "<<endl;
-    for(int i=0; i < 15; i++){
-        if(i+1 < 10){
-            cout<<i+1<<"    --";
+    for(int i=0; i <= 14; i++){
+        if(i < 10){
+            cout<<i<<"    --";
         }else{
-            cout<<i+1<<"   --";
+            cout<<i<<"   --";
         }
-        for(int j = 0; j < 15; j++){
+        for(int j = 0; j <= 14; j++){
             cout << board[i][j] << "----"; 
         }
     cout<<endl<<"       |    |    |    |    |    |    |    |    |    |    |    |    |    |    | "<<endl;
@@ -179,10 +179,10 @@ class board_state_node{
         int total_num_visits = 0;
         board_state_node * parent= NULL;
         vector<board_state_node*> children; //list of children
-        int last_position_played[2]; //x and y coordinates of the last position played
-
+        
     public:
         int game_state[15][15]; //State of the board 
+        int last_position_played[2]; //x and y coordinates of the last position played
         
         //getters
         vector<board_state_node*>& get_children(){return children;}
@@ -197,6 +197,10 @@ class board_state_node{
         void set_reward(double value){total_simulation_reward = value;}
         void push_back_child(board_state_node* child){
             children.push_back(child);
+        }
+        void set_last_position(int position[2]){
+            last_position_played[0] = position[0];
+            last_position_played[1]=position[1];
         }
         
         //default constructor
@@ -214,10 +218,6 @@ class board_state_node{
 
         //constructor
         board_state_node(int game_board[15][15], board_state_node * predecessor){
-            //create the original game state
-            // for(int i = 0; i < 15; i++)
-            //     game_state[i] = new int[15];
-
             // copy the passed board state to the blank board state.    
             copy(&game_board[0][0],&game_board[0][0]+15*15,&game_state[0][0]);
             parent = predecessor;  
@@ -314,10 +314,16 @@ class MonteCarloTree{
                         //place new number to that state based on what player you are
                         new_state[i][k] = pebble_color;
 
+
                         //create node with that state
                         board_state_node *parent = node; //current node is going to be the parent
                         board_state_node *point_to_child = new board_state_node(new_state, parent);
                         
+                        //remember the position played
+                        int last_pos[2]={i,k};
+                        cout<<"LAST POSITION IS: "<<i<<" "<<k<<endl;
+                        point_to_child->set_last_position(last_pos);
+
                         //add the node to the children list
                         node->push_back_child(point_to_child);
                     } 
@@ -325,24 +331,15 @@ class MonteCarloTree{
             }
         }
 
-
-
-
-
         //function according to which the next move is chosen
         //randomly picking a child
         board_state_node* rollout_policy(board_state_node* node){
             return node->get_children().at(rand()%node->get_children().size());
         }
 
-
-
-
-
         // picking what child we are going to explore based on child's Upper Confidence Bound (UCB)
         //node that is being passed is the initial state
         board_state_node* traverse(board_state_node* node){
-            // turn = true;
             //if there are children, calculate UCB for each child and choose the child with maximum UCB
             //we keep doing this until we hit the leaf node that has no children
             while(node->get_children().size() > 0){
@@ -367,10 +364,6 @@ class MonteCarloTree{
                 }
                 //we are going deeper by setting the node to be the child with the best UCB
                 node = best_node;
-
-                // if(!node->has_children()){
-                //     turn = !turn;
-                // }
             }
             //at this point we got the to a leaf node and we need to expand
             if(!node->has_children()){
@@ -383,7 +376,6 @@ class MonteCarloTree{
                     if(checkBoardStatus(node->game_state) != 0){
                         return node;
                     }
-
                     //create children for this node
                     create_children(node);
 
@@ -395,44 +387,20 @@ class MonteCarloTree{
             }
         }
 
-
-
-
-
-
-
-
-
-
-
         //function that is going to show the result of the simulation
         int rollout(board_state_node* node){
             // board_state_node temp_node = board_state_node(node->game_state,NULL, node->pebble_color);
             board_state_node* point_to_temp_node = new board_state_node(node->game_state,NULL);
-            // turn = turn;
 
             while(checkBoardStatus(point_to_temp_node->game_state) < 1){
                 if(point_to_temp_node->get_children().size() == 0)
-                    create_children(point_to_temp_node);
-                
+                    create_children(point_to_temp_node);                
                 //pick a random child
                 point_to_temp_node = rollout_policy(point_to_temp_node);
-                // turn = !turn;
             }
             //returning the winning pebble or 0 if there is no winner
             return checkBoardStatus(point_to_temp_node->game_state);
         }
-
-
-
-
-
-
-
-
-
-
-
 
         //returning the child with the most visits
         board_state_node* best_child(board_state_node* node){
@@ -447,20 +415,8 @@ class MonteCarloTree{
                     the_best_child = node->get_children().at(i);
                 }
             }
-            
-
             return the_best_child;
         }
-
-
-
-
-
-
-
-        
-
-
 
         //backpropagation function
         void backpropagate(board_state_node* node, double result){
@@ -474,13 +430,11 @@ class MonteCarloTree{
             backpropagate(node->get_parent(), -result);
         }
 
-
-
         // Monte Carlo Tree Search Function
         board_state_node* monte_carlo_tree_search(int state[15][15]){
 
             //3 seconds should be limitation
-            for(int i = 0; i < 1000; i++){
+            for(int i = 0; i < 100; i++){
                 cout<<"yes 1"<<endl;
                 board_state_node* leaf = traverse(current);
                 cout<<"yes 2"<<endl;
@@ -492,7 +446,6 @@ class MonteCarloTree{
             current = best_child(current);
             return current;
         }
-
 };
 
 
@@ -513,8 +466,13 @@ void search(int board[15][15], int color, int position[2]){
     //get the best child
     board_state_node* BEST = the_tree.monte_carlo_tree_search(root.game_state);
 
-    display(BEST->game_state);
 
+    display(BEST->game_state);
+    cout<<"The best position chosen by AI is: "<<BEST->last_position_played[0]<<" "<<BEST->last_position_played[1]<<endl;
+
+    //update the position parameter with the last positoin chosen by AI
+    position[0] = BEST->last_position_played[0];
+    position[1] = BEST->last_position_played[1];
 
     return;
 }
@@ -561,7 +519,8 @@ void human_vs_AI(){
         if(user_pebble == 2){
             //let AI play and save the best its choice in the AI_position list
             search(state,AI_pebble,AI_position);
-
+            cout<<"Before passoing the AI position to play function position is: "<< AI_position[0]<<" "<<AI_position[1]<<endl;
+            
             //play with those positions
             play(state, AI_pebble, AI_position);
         }
@@ -620,7 +579,7 @@ void human_vs_AI(){
         if(user_pebble == 1){
             //let AI play and save the best its choice in the AI_position list
             search(state,AI_pebble,AI_position);
-
+            
             //play with those positions
             play(state, AI_pebble, AI_position);
         }
@@ -637,57 +596,12 @@ void human_vs_AI(){
 
     return;
 }
+
 int main(){
     //seeding the random number generator
     srand(time(0));
 
     human_vs_AI();
   
-    // MonteCarloTree my_tree = MonteCarloTree(game_board, 1);
-    // my_tree.print_current_state();
-    // board_state_node* root = new board_state_node(gameBoard, NULL, 1);
-    // root->create_children(root);
-    // root->print_node(root);
-   
-    // int gameBoard2[15][15] = {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    //                          {0,0,0,0,0,0,0,0,0,0,0,0,0,0,2}};
-
-    // board_state_node myNode = board_state_node(gameBoard2,NULL,2);
-    
-    // // int position[] = {1,4};
-    // // play(myNode.game_state,1,position);
-    // // int position1[] = {1,5};
-    // // play(myNode.game_state,1,position1);
-    // // int position2[] = {1,6};
-    // // play(myNode.game_state,1,position2);
-    // // int position3[] = {1,7};
-    // // play(myNode.game_state,1,position3);
-    // // int position4[] = {1,8};
-    // // play(myNode.game_state,1,position4);
-    // // myNode.print_node();
-    // // // cout<< checkBoardStatus(myNode.game_state)<<endl;
-
-    // MonteCarloTree my_tree = MonteCarloTree(gameBoard2,1);
-    // // display(my_tree.get_root()->game_state );
-    // my_tree.print_current_state();
-    // my_tree.create_children(my_tree.get_root());
-    // // cout<<my_tree.get_root()->get_children().size()<<endl;
-
-    // board_state_node* final= my_tree.monte_carlo_tree_search(my_tree.get_current()->game_state);
-    // display(final->game_state);
-    
     return 0;
 }
