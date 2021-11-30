@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include <ctime>
 #include <time.h>
+#include <memory>
 
 using namespace std;
 
@@ -179,25 +180,25 @@ class board_state_node{
         // int pebble_color = 0;
         double total_simulation_reward = 0;
         int total_num_visits = 0;
-        board_state_node * parent= NULL;
-        vector<board_state_node*> children; //list of children
+        shared_ptr<board_state_node> parent= NULL;
+        vector<shared_ptr<board_state_node>> children; //list of children (list of shared vectors)
         
     public:
         int game_state[15][15]; //State of the board 
         int last_position_played[2]; //x and y coordinates of the last position played
         
         //getters
-        vector<board_state_node*>& get_children(){return children;}
+        vector<shared_ptr<board_state_node>>& get_children(){return children;}
         int get_visits(){return total_num_visits;}
         double get_reward(){return total_simulation_reward;}
-        board_state_node* &get_parent(){return parent;}
+        shared_ptr<board_state_node> &get_parent(){return parent;}
         // int get_pebble_color(){return pebble_color;}
         // int** get_state(){return game_state;}
 
         //setters
         void set_visits(int num_visits){total_num_visits = num_visits;}
         void set_reward(double value){total_simulation_reward = value;}
-        void push_back_child(board_state_node* child){
+        void push_back_child(shared_ptr<board_state_node> child){
             children.push_back(child);
         }
         void set_last_position(int position[2]){
@@ -219,7 +220,7 @@ class board_state_node{
         }
 
         //constructor
-        board_state_node(int game_board[15][15], board_state_node * predecessor){
+        board_state_node(int game_board[15][15], shared_ptr<board_state_node> predecessor){
             // copy the passed board state to the blank board state.    
             copy(&game_board[0][0],&game_board[0][0]+15*15,&game_state[0][0]);
             parent = predecessor;  
@@ -228,9 +229,9 @@ class board_state_node{
 
         //destructor;
         virtual ~board_state_node(){
-            for(vector<board_state_node*>::iterator it = children.begin(); it != children.end();it++){
-                delete *it;
-            }
+            // for(vector<board_state_node*>::iterator it = children.begin(); it != children.end();it++){
+            //     delete *it;
+            // }
             
             // //delete the game state pointers
             // for(int i = 0 ; i < 15; i++)
@@ -278,27 +279,27 @@ class board_state_node{
 
 class MonteCarloTree{
     private:
-        board_state_node* root;
-        board_state_node* current;
+        shared_ptr<board_state_node> root;
+        shared_ptr<board_state_node> current;
         int pebble_color;
         bool user_turn = true;
 
     public:
         MonteCarloTree(int state[15][15], int color){
-            root = new board_state_node(state, NULL);
+            root = make_shared<board_state_node>(board_state_node(state, NULL)); 
             current = root;
             pebble_color = color;
         }
         //getters
-        board_state_node* get_root(){return root;}
-        board_state_node* get_current(){return current;}
+        shared_ptr<board_state_node> get_root(){return root;}
+        shared_ptr<board_state_node> get_current(){return current;}
 
         void print_current_state(){
             display(current->game_state);
         }
 
         // //Create children of the node for every possible move
-        void create_children(board_state_node* node){
+        void create_children(shared_ptr<board_state_node> node){
             for(int i = 0; i < 15; i++){
                 for(int k =0; k<15 ; k++){
                     //if the position on the board is empty then add a child
@@ -313,8 +314,9 @@ class MonteCarloTree{
 
 
                         //create node with that state
-                        board_state_node *parent = node; //current node is going to be the parent
-                        board_state_node *point_to_child = new board_state_node(new_state, parent);
+                        shared_ptr<board_state_node> parent = node; //current node is going to be the parent
+                        // board_state_node *point_to_child = new board_state_node(new_state, parent);
+                        shared_ptr<board_state_node> point_to_child = make_shared<board_state_node>(board_state_node(new_state, parent)) ;
                         
                         //remember the position played
                         int last_pos[2]={i,k};
@@ -330,25 +332,25 @@ class MonteCarloTree{
 
         //function according to which the next move is chosen
         //randomly picking a child
-        board_state_node* rollout_policy(board_state_node* node){
+        shared_ptr<board_state_node> rollout_policy(shared_ptr<board_state_node> node){
             return node->get_children().at(rand()%node->get_children().size());
         }
 
         // picking what child we are going to explore based on child's Upper Confidence Bound (UCB)
         //node that is being passed is the initial state
-        board_state_node* traverse(board_state_node* node){
+        shared_ptr<board_state_node> traverse(shared_ptr<board_state_node> node){
             //if there are children, calculate UCB for each child and choose the child with maximum UCB
             //we keep doing this until we hit the leaf node that has no children
             while(node->get_children().size() > 0){
                 double best_UCB = 0;
                 double UCB = 0;
-                board_state_node* best_node = node; 
+                shared_ptr<board_state_node> best_node = node; 
 
                 //calculate UCB for every child and remember the best one
                 for(int i = 0; i < node->get_children().size(); i++){
                     //if child has been visited before, calculate UCB using formula
                     //otherwise UCB is 1.
-                    board_state_node* child = node->get_children().at(i);
+                    shared_ptr<board_state_node> child = node->get_children().at(i);
                     if(child->get_visits() != 0)
                         UCB = child->get_reward()/child->get_visits() + 2 * sqrt(log(child->get_visits())/child->get_visits());
                     else
@@ -385,9 +387,9 @@ class MonteCarloTree{
         }
 
         //function that is going to show the result of the simulation
-        int rollout(board_state_node* node){
+        int rollout(shared_ptr<board_state_node> node){
             // board_state_node temp_node = board_state_node(node->game_state,NULL, node->pebble_color);
-            board_state_node* point_to_temp_node = new board_state_node(node->game_state,NULL);
+            shared_ptr<board_state_node> point_to_temp_node = make_shared<board_state_node>(board_state_node(node->game_state,NULL));
 
             while(checkBoardStatus(point_to_temp_node->game_state) < 1){
                 if(point_to_temp_node->get_children().size() == 0)
@@ -400,9 +402,9 @@ class MonteCarloTree{
         }
 
         //returning the child with the most visits
-        board_state_node* best_child(board_state_node* node){
+        shared_ptr<board_state_node> best_child(shared_ptr<board_state_node> node){
             int most_visits = 0; //keeping trach of the most visits any child has
-            board_state_node* the_best_child = NULL; // keeping track of the child with the most visits
+            shared_ptr<board_state_node> the_best_child = NULL; // keeping track of the child with the most visits
          
             // iterating over each child to see which one has the most visits
             for(int i =0; i<node->get_children().size(); i++){
@@ -416,7 +418,7 @@ class MonteCarloTree{
         }
 
         //backpropagation function
-        void backpropagate(board_state_node* node, double result){
+        void backpropagate(shared_ptr<board_state_node> node, double result){
             //update the score and the number of visits on each node on this path
             node->set_reward(node->get_reward() + result );
             node->set_visits(node->get_visits()+1);
@@ -428,7 +430,7 @@ class MonteCarloTree{
         }
 
         // Monte Carlo Tree Search Function
-        board_state_node* monte_carlo_tree_search(int state[15][15]){
+        shared_ptr<board_state_node> monte_carlo_tree_search(int state[15][15]){
 
             //3 seconds should be limitation
             time_t start = time(0);
@@ -436,7 +438,7 @@ class MonteCarloTree{
             while(difftime(time(0), start) < 3){   
             // for(int i = 0; i < 100; i++){
                 // cout<<"yes 1"<<endl;
-                board_state_node* leaf = traverse(current);
+                shared_ptr<board_state_node> leaf = traverse(current);
                 // cout<<"yes 2"<<endl;
                 int simulation_result = rollout(leaf);
                 // cout<<"yes 3"<<endl;
@@ -464,7 +466,7 @@ void search(int board[15][15], int color, int position[2]){
     MonteCarloTree the_tree = MonteCarloTree(root.game_state, color);
 
     //get the best child
-    board_state_node* BEST = the_tree.monte_carlo_tree_search(root.game_state);
+    shared_ptr<board_state_node> BEST = the_tree.monte_carlo_tree_search(root.game_state);
 
 
     // display(BEST->game_state);
