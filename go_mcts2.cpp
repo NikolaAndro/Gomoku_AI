@@ -127,6 +127,9 @@ namespace NAndric{
                 // cout<<"returning "<<board[x][y]<<endl;
                 return board[x][y];
             }
+
+        
+
         }
         return 0;
     }
