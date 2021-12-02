@@ -581,9 +581,9 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
                 // iterating over each child to see which one has the most visits
                 for(int i =0; i<node->get_children().size(); i++){
                     // cout<<i<<endl;
-                    if(node->get_children().at(i)->get_visits() >= most_visits){
+                    if(node->get_children().at(i)->get_visits() > most_visits){
                         most_visits = node->get_children().at(i)->get_visits();
-                        the_best_child = node->get_children().at(i);
+                        the_best_child = node->get_children().at(i);    
                     }
                 }
                 return the_best_child;
