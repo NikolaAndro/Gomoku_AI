@@ -146,8 +146,8 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
         count = 0; //count how many consecutive pebbles there are in this direction
         winner = false; //keep track if there is a winning state 
         //cout<<"Checking direction DOWN"<<endl;
-        while(temp_x>=0 && board[temp_x][y] == board[x][y] ){
-            //cout<<"checking position "<< temp_x<<" "<< y << " where x is "<< board[temp_x][y] <<endl;
+        while(temp_x<=14 && board[temp_x][y] == board[x][y] ){
+            // cout<<"checking position "<< temp_x<<" "<< y << " where x is "<< board[temp_x][y] <<endl;
 
             //if the next spot on the board is same as the original one, increment the count
             if (board[temp_x][y] == board[x][y]){
@@ -160,8 +160,11 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
                 break;
             }
             
-            //move one spot left
+            
+            //move one spot down
             temp_x++;
+            
+            
         }
         //return the value of pebble if the winning state is achieved
         if(winner == true){
@@ -206,7 +209,7 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
         count = 0; //count how many consecutive pebbles there are in this direction
         winner = false; //keep track if there is a winning state 
         //cout<<"Checking direction DIAGONAL UP - RIGHT"<<endl;
-        while(temp_x>=0 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
+        while(temp_x>=0 && temp_y<=14 && board[temp_x][temp_y] == board[x][y] ){
         //cout<<"checking position "<< temp_x<<" "<< temp_y <<endl;
 
         //if the next spot on the board is same as the original one, increment the count
@@ -237,7 +240,7 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
     count = 0; //count how many consecutive pebbles there are in this direction
     winner = false; //keep track if there is a winning state 
     //cout<<"Checking direction DIAGONAL DOWN - LEFT"<<endl;
-    while(temp_x>=0 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
+    while(temp_x<=14 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
         //cout<<"checking position "<< temp_x<<" "<< temp_y <<endl;
 
         //if the next spot on the board is same as the original one, increment the count
@@ -261,13 +264,13 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
         return board[x][y];
     }
 
-    //Checking direction Diagonal DOWN - LEFT
+    //Checking direction Diagonal DOWN - RIGHT
     temp_x = x; //from this position we are looking for 5 consecutive same values
     temp_y = y;
     count = 0; //count how many consecutive pebbles there are in this direction
     winner = false; //keep track if there is a winning state 
     //cout<<"Checking direction DIAGONAL DOWN - RIGHT"<<endl;
-    while(temp_x>=0 && temp_y>=0 && board[temp_x][temp_y] == board[x][y] ){
+    while(temp_x<=14 && temp_y<=14 && board[temp_x][temp_y] == board[x][y] ){
         //cout<<"checking position "<< temp_x<<" "<< temp_y <<endl;
 
         //if the next spot on the board is same as the original one, increment the count
@@ -349,8 +352,8 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
             vector<shared_ptr<board_state_node>> children; //list of children (list of shared vectors)
             
         public:
-            int game_state[15][15]; //State of the board 
-            int last_position_played[2]; //x and y coordinates of the last position played
+            int game_state[15][15]={{0,0,0},{0,0,0},{0,0,0}}; //State of the board 
+            int last_position_played[2]={-1,-1}; //x and y coordinates of the last position played
             
             //getters
             vector<shared_ptr<board_state_node>>& get_children(){return children;}
@@ -556,6 +559,7 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
                 // board_state_node temp_node = board_state_node(node->game_state,NULL, node->pebble_color);
                 //keep temporary shared pointer
                 shared_ptr<board_state_node> point_to_temp_node = make_shared<board_state_node>(board_state_node(node->game_state,NULL));
+                
                 //Loop until the game has a winner
                 while(checkBoardStatus(point_to_temp_node->game_state, point_to_temp_node->last_position_played) < 1){
                     //if node does not have children, then create children for that node and dig deeper into the tree
@@ -683,8 +687,8 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
         // bool game_ended = false; //used to see if we have winner or not or if game just ended with draw.
 
         int row, col; // row and column that human will  play
-        int AI_position[2];
-        int user_last_position[2];
+        int AI_position[2]= {-1,-1};
+        int user_last_position[2]= {-1,-1};
         //play the game until there is a winner or draw;
         while(true){
 
@@ -704,7 +708,7 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
             //check if there is a winner
             //Check if the game is over!
             if(checkBoardStatus(state, AI_position)== AI_pebble){
-                cout<<"The winner is AI !"<<endl<<endl;
+                cout<<"/n/n The winner is AI !/n/n"<<endl<<endl;
                 display(state);
                 break;
             }
@@ -760,7 +764,7 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
             user_last_position[0]=row;
             user_last_position[1]=col;
             if (checkBoardStatus(state,user_last_position) == user_pebble){
-                cout<<"The winner is human !"<<endl<<endl;
+                cout<<"/n/n The winner is human !/n/n"<<endl<<endl;
                 display(state);
                 break;
             }
@@ -776,7 +780,7 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
 
             //Check if the game is over!
             if(checkBoardStatus(state, AI_position)== AI_pebble){
-                cout<<"The winner is AI !"<<endl<<endl;
+                cout<<"/n/n The winner is AI !/n/n"<<endl<<endl;
                 display(state);
                 break;
             }
