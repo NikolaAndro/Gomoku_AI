@@ -26,9 +26,9 @@ namespace NAndric{
         cout<<"       ";
         for(int i = 0; i <= 14; i++){
             if(i <= 9){
-                cout << i << "    ";
+                cout <<"\033[1;36m"<< i <<"\033[0m" << "    ";
             }else{
-                cout<<  i << "   ";
+                cout<<  "\033[1;36m"<< i <<"\033[0m" << "   ";
             }  
         }
         cout<<endl<<endl;
@@ -37,12 +37,22 @@ namespace NAndric{
         cout<<endl<<"       |    |    |    |    |    |    |    |    |    |    |    |    |    |    | "<<endl;
         for(int i=0; i <= 14; i++){
             if(i < 10){
-                cout<<i<<"    --";
+                cout<<"\033[1;36m"<< i <<"\033[0m"<<"    --";
             }else{
-                cout<<i<<"   --";
+                cout<<"\033[1;36m"<< i <<"\033[0m"<<"   --";
             }
             for(int j = 0; j <= 14; j++){
-                cout << board[i][j] << "----"; 
+                // about changing colors: https://www.tutorialspoint.com/how-to-output-colored-text-to-a-linux-terminal
+                //if it is a free spot then let it be yellow
+                //if pebble 2 then red
+                //if pebble 1 then green
+                if(board[i][j]==0)
+                    cout<<"\033[1;33m"<< board[i][j] <<"\033[0m";
+                else if(board[i][j] == 2)
+                    cout<<"\033[7;37m"<< board[i][j] <<"\033[0m";
+                else if (board[i][j] == 1)
+                    cout<<"\033[7;32m"<< board[i][j] <<"\033[0m";
+                cout << "----"; 
             }
         cout<<endl<<"       |    |    |    |    |    |    |    |    |    |    |    |    |    |    | "<<endl;
         }        
@@ -644,7 +654,8 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
 
 
         // display(BEST->game_state);
-        cout<<"The best position chosen by AI is: "<<BEST->last_position_played[0]<<" "<<BEST->last_position_played[1]<<endl;
+        cout<<"                       ";
+        cout<<"\033[1;31m"<<"The position chosen by AI is: "<<BEST->last_position_played[0]<<" "<<BEST->last_position_played[1]<< "\033[0m"<<endl<<endl;
 
         //update the position parameter with the last positoin chosen by AI
         position[0] = BEST->last_position_played[0];
@@ -656,8 +667,21 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
     void human_vs_AI(){
         int user_pebble, AI_pebble;
         //ask user for the color of pebble he/she wants to use
-        cout<<"Please enter the number for the color you want to play with:"<<endl<<"1 - black"<<endl<<"2 - white"<<endl<<"Your number is:";
-        cin>>user_pebble;
+        cout<<"NOTE: Green player plays first!"<<endl<<endl;
+        while(true){
+            try{
+                cout<<"Please enter the number for the color you want to play with:"<<endl<<"1 - green"<<endl<<"2 - white"<<endl<<"Your number is: ";
+                cin >> user_pebble;
+                if(user_pebble == 1 || user_pebble == 2)
+                    break;
+                else    
+                    throw(user_pebble);
+            }
+            catch (int user_pebbleee){
+                cout<<"NOTE:  When you choose color of the player you can only enter values 1 or 2. Try again!"<<endl<<endl ;
+            } 
+        }
+              
         //get AI pebble
         if(user_pebble == 1)
             AI_pebble = 2;
@@ -696,27 +720,18 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
             if(user_pebble == 2){
                 //let AI play and save the best its choice in the AI_position list
                 search(state,AI_pebble,AI_position);
-                // cout<<"Before passoing the AI position to play function position is: "<< AI_position[0]<<" "<<AI_position[1]<<endl;
                 
                 //play with those positions
                 play(state, AI_pebble, AI_position);
             }
-            // board_state_node* temp = my_tree.monte_carlo_tree_search(state)->game_state;
-            //get the game state to be the copy of the game state after mcts
-            // copy(&my_tree.monte_carlo_tree_search(state)->game_state[0][0],&my_tree.monte_carlo_tree_search(state)->game_state[0][0]+15*15,&state[0][0]);
-    
+            
             //check if there is a winner
             //Check if the game is over!
             if(checkBoardStatus(state, AI_position)== AI_pebble){
-                cout<<"/n/n The winner is AI !/n/n"<<endl<<endl;
                 display(state);
+                cout<<"\n\n The winner is AI !\n\n"<<endl<<endl;
                 break;
             }
-            // else if (checkBoardStatus(state) == user_pebble){
-            //     cout<<"The winner is human !"<<endl<<endl;
-            //     display(state);
-            //     break;
-            // }
 
             //User's turn to play
             while(true){
@@ -764,8 +779,8 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
             user_last_position[0]=row;
             user_last_position[1]=col;
             if (checkBoardStatus(state,user_last_position) == user_pebble){
-                cout<<"/n/n The winner is human !/n/n"<<endl<<endl;
                 display(state);
+                cout<<"\n\n The winner is human !\n\n"<<endl<<endl;
                 break;
             }
 
@@ -780,8 +795,8 @@ int checkBoardStatus(int board[15][15], int last_position[2]){
 
             //Check if the game is over!
             if(checkBoardStatus(state, AI_position)== AI_pebble){
-                cout<<"/n/n The winner is AI !/n/n"<<endl<<endl;
                 display(state);
+                cout<<"\n\n The winner is AI !\n\n"<<endl<<endl;
                 break;
             }
         }
