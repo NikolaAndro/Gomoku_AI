@@ -1,3 +1,11 @@
+/*******************************************
+*                                          *
+*   Programmer: Nikola Andric              *
+*   Email: nikolazeljkoandric@gmail.com    *
+*   Last Eddited: 3. Dec. 2021             *
+*                                          *
+********************************************/
+
 import time
 import numpy as np
 import sys
